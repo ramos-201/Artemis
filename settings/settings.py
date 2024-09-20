@@ -1,6 +1,7 @@
 from pathlib import Path
 
-from settings.env_base import SECRET_KEY_DJ_APP, ENVIRONMENT
+from settings.env_base import SECRET_KEY_DJ_APP, ENVIRONMENT, NAME_DB_PG, USER_DB_PG, PASSWORD_DB_PG, HOST_DB_PG, \
+    PORT_DB_PG
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -59,8 +60,12 @@ TEMPLATES = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': NAME_DB_PG,
+        'USER': USER_DB_PG,
+        'PASSWORD': PASSWORD_DB_PG,
+        'HOST': HOST_DB_PG,
+        'PORT': PORT_DB_PG,
     }
 }
 
@@ -78,6 +83,13 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = [
+    'settings.email_validation.EmailValidation',
+    'django.contrib.auth.backends.ModelBackend',
+]
+
+AUTH_USER_MODEL = 'artemis.User'
 
 LANGUAGE_CODE = 'en-us'
 
