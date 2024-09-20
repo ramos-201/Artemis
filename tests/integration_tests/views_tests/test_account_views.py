@@ -1,3 +1,4 @@
+from pytest import mark
 from django.urls import reverse
 
 from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
@@ -5,7 +6,8 @@ from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
 conn_url_login = reverse(RoutesViewsEnums.LOGIN.value)
 
 
-def test_login_successful(client_app):
+@mark.django_db
+def test_login_successful(client_app, user_created):
     data_example_success = {
         'email': 'mail_example@example.com',
         'password': 'password_example',
@@ -14,8 +16,10 @@ def test_login_successful(client_app):
 
     assert response_client.status_code == 302
     assert response_client.url == reverse(RoutesViewsEnums.HOME.value)
+    assert client_app.session['_auth_user_id'] == str(user_created.id)
 
 
+@mark.django_db
 def test_login_failed(client_app):
     data_example_failed = {
         'email': 'mail_example_failed@example.com',

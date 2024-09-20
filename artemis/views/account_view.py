@@ -1,3 +1,4 @@
+from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, render
 
 from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
@@ -11,8 +12,12 @@ def login_conn_view(request):
         if not email or not password:
             return render(request, 'login.html', {'error': 'Required data is missing'}, status=102)
 
-        if email == 'mail_example@example.com' and password == 'password_example':
-            return redirect(RoutesViewsEnums.HOME.value)
+        user_auth = authenticate(request, email=email, password=password)
+
+        if user_auth is not None:
+            login(request, user_auth)
+            return redirect('home')
+
         return render(request, 'login.html', {'error': 'Invalid credentials'}, status=101)
 
     return redirect(RoutesViewsEnums.LOGIN.value)  # load page
