@@ -14,5 +14,4 @@ def user_created():
     user = UserFactory.create()
     user.set_password('password_example')
     user.save()
-    yield user
-    user.delete()
+    return user
