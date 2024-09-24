@@ -1,7 +1,14 @@
 from pathlib import Path
 
-from settings.env_base import SECRET_KEY_DJ_APP, ENVIRONMENT, NAME_DB_PG, USER_DB_PG, PASSWORD_DB_PG, HOST_DB_PG, \
+from settings.env_base import (
+    SECRET_KEY_DJ_APP,
+    ENVIRONMENT,
+    NAME_DB_PG,
+    USER_DB_PG,
+    PASSWORD_DB_PG,
+    HOST_DB_PG,
     PORT_DB_PG
+)
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
