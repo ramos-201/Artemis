@@ -1,7 +1,13 @@
 from pytest import fixture
 from django.test import Client
 
+from artemis.models import User
 from tests.factory import UserFactory
+
+
+@fixture(autouse=True)
+def db_clean(db):
+    User.objects.all().delete()
 
 
 @fixture

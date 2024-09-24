@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.urls import path
 
 from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
-from artemis.views.account_view import login_conn_view
+from artemis.views.account_view import login_conn_view, register_conn_view
 
 
 def conn_view(request):
@@ -14,5 +14,5 @@ urlpatterns = [
 
     path('home/', conn_view, name=RoutesViewsEnums.HOME.value),
     path('login/', login_conn_view, name=RoutesViewsEnums.LOGIN.value),
-
+    path('register/', register_conn_view, name=RoutesViewsEnums.REGISTER.value)
 ]

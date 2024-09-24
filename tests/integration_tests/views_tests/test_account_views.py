@@ -1,6 +1,7 @@
 from pytest import mark
 from django.urls import reverse
 
+from artemis.models import User
 from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
 
 conn_url_login = reverse(RoutesViewsEnums.LOGIN.value)
@@ -40,3 +41,32 @@ def test_login_failed_with_empty_data(client_app):
     assert response_client.templates[0].name == 'login.html'
     assert 'error' in response_client.context
     assert response_client.context['error'] == 'Required data is missing'
+
+
+@mark.django_db
+def test_register_new_user_successfully(client_app):
+    conn_url_register = reverse('register')
+    data_example_success = {
+        'email': 'mail_example@example.com',
+        'password': 'password_example',
+        'first_name': 'Juan',
+        'last_name': 'Gomez',
+        'middle_name': 'Camilo',
+        'second_last_name': 'Silva',
+    }
+    response_client = client_app.post(conn_url_register, data_example_success)
+
+    print('#'*100, response_client)
+    assert response_client.status_code == 302
+    assert response_client.url == reverse(RoutesViewsEnums.LOGIN.value)
+
+    result_user = User.objects.filter(email=data_example_success['email']).first()
+    assert result_user.email == data_example_success['email']
+    assert result_user.password is not None
+    assert result_user.first_name == data_example_success['first_name']
+    assert result_user.last_name == data_example_success['last_name']
+    assert result_user.middle_name == data_example_success['middle_name']
+    assert result_user.second_last_name == data_example_success['second_last_name']
+    assert result_user.is_active is True
+    assert result_user.created_at is not None
+    assert result_user.modified_at is not None
