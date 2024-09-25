@@ -9,6 +9,14 @@ class UserController:
         self._model = User
 
     def create_user(self, email, password, first_name, last_name, middle_name, second_last_name):
+        if (
+            not email or
+            not password or
+            not first_name or
+            not last_name
+        ):
+            return None, 'Required data is missing'
+
         try:
             user = self._model.objects.create(
                 email=email,
