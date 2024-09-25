@@ -73,7 +73,6 @@ def test_register_new_user_successfully(client_app):
     assert result_user.modified_at is not None
 
 
-@mark.django_db
 def test_error_registering_existing_user(client_app, user_created):
     response_client = client_app.post(conn_url_register, data_example)
     assert response_client.status_code == 200
@@ -82,10 +81,22 @@ def test_error_registering_existing_user(client_app, user_created):
     assert response_client.context['error'] == 'This email is already registered.'
 
 
-@mark.django_db
 def test_error_registering_user_with_empty_data(client_app):
     response_client = client_app.post(conn_url_register, {})
     assert response_client.status_code == 200
     assert response_client.templates[0].name == 'register.html'
     assert 'error' in response_client.context
     assert response_client.context['error'] == 'Required data is missing'
+
+
+def test_register_user_successfully_without_any_unnecessary_data(client_app):
+    data_example_modified = data_example.copy()
+    data_example_modified.pop('middle_name')
+    data_example_modified.pop('second_last_name')
+    response_client = client_app.post(conn_url_register, data_example_modified)
+
+    assert response_client.status_code == 302
+    assert response_client.url == reverse(RoutesViewsEnums.LOGIN.value)
+
+    result_user = User.objects.filter(email=data_example['email']).first()
+    assert result_user.email == data_example['email']
