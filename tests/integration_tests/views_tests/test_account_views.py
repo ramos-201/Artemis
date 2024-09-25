@@ -78,7 +78,7 @@ def test_error_registering_existing_user(client_app, user_created):
     assert response_client.status_code == 200
     assert response_client.templates[0].name == 'register.html'
     assert 'error' in response_client.context
-    assert response_client.context['error'] == 'This email is already registered.'
+    assert response_client.context['error'] == 'This email is already registered'
 
 
 def test_error_registering_user_with_empty_data(client_app):
@@ -89,6 +89,7 @@ def test_error_registering_user_with_empty_data(client_app):
     assert response_client.context['error'] == 'Required data is missing'
 
 
+@mark.django_db
 def test_register_user_successfully_without_any_unnecessary_data(client_app):
     data_example_modified = data_example.copy()
     data_example_modified.pop('middle_name')
@@ -100,3 +101,14 @@ def test_register_user_successfully_without_any_unnecessary_data(client_app):
 
     result_user = User.objects.filter(email=data_example['email']).first()
     assert result_user.email == data_example['email']
+
+
+def test_error_with_email_format_when_registering_user(client_app):
+    data_example_modified = data_example.copy()
+    data_example_modified['email'] = 'test_example_failed'
+    response_client = client_app.post(conn_url_register, data_example_modified)
+
+    assert response_client.status_code == 200
+    assert response_client.templates[0].name == 'register.html'
+    assert 'error' in response_client.context
+    assert response_client.context['error'] == 'Email format is not valid'
