@@ -1,3 +1,5 @@
+import json
+
 from pytest import mark
 from django.urls import reverse
 
@@ -13,10 +15,14 @@ def test_login_successful(client_app, user_created):
         'email': 'mail_example@example.com',
         'password': 'password_example',
     }
-    response_client = client_app.post(conn_url_login, data_example_success)
+    response_client = client_app.post(
+        conn_url_login,
+        data=json.dumps(data_example_success),
+        content_type='application/json'
+    )
 
-    assert response_client.status_code == 302
-    assert response_client.url == reverse(RoutesViewsEnums.HOME.value)
+    assert response_client.status_code == 200
+    assert response_client.json().get('message') == 'Login successful'
     assert client_app.session['_auth_user_id'] == str(user_created.id)
 
 
@@ -26,21 +32,21 @@ def test_login_failed(client_app):
         'email': 'mail_example_failed@example.com',
         'password': 'password_example_failed',
     }
-    response_client = client_app.post(conn_url_login, data_example_failed)
+    response_client = client_app.post(
+        conn_url_login,
+        data=json.dumps(data_example_failed),
+        content_type='application/json'
+    )
 
-    assert response_client.status_code == 200
-    assert response_client.templates[0].name == 'login.html'
-    assert 'error' in response_client.context
-    assert response_client.context['error'] == 'Invalid credentials'
+    assert response_client.status_code == 400
+    assert response_client.json().get('error') == 'Invalid credentials'
 
 
 def test_login_failed_with_empty_data(client_app):
     response_client = client_app.post(conn_url_login, {})
 
-    assert response_client.status_code == 200
-    assert response_client.templates[0].name == 'login.html'
-    assert 'error' in response_client.context
-    assert response_client.context['error'] == 'Required data is missing'
+    assert response_client.status_code == 400
+    assert response_client.json().get('error') == 'Required data is missing'
 
 
 conn_url_register = reverse('register')

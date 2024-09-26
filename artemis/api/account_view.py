@@ -1,27 +1,30 @@
 from django.contrib.auth import authenticate, login
 from django.shortcuts import redirect, render
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from artemis.controllers.user_controller import UserController
-from artemis.utils.enums.rutes_views_enum import RoutesViewsEnums
 
 
-def login_conn_view(request):
-    if request.method == 'POST':
-        email = request.POST.get('email')
-        password = request.POST.get('password')
+class LoginView(APIView):
+
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        email = request.data.get('email')
+        password = request.data.get('password')
 
         if not email or not password:
-            return render(request, 'login.html', {'error': 'Required data is missing'})
+            return Response({'error': 'Required data is missing'}, status=400)
 
-        user_auth = authenticate(request, email=email, password=password)
+        user = authenticate(request, email=email, password=password)
 
-        if user_auth is not None:
-            login(request, user_auth)
-            return redirect('home')
+        if user is not None:
+            login(request, user)
+            return Response({'message': 'Login successful'}, status=200)
 
-        return render(request, 'login.html', {'error': 'Invalid credentials'})
-
-    return redirect(RoutesViewsEnums.LOGIN.value)  # load page
+        return Response({'error': 'Invalid credentials'}, status=400)
 
 
 def register_conn_view(request):
