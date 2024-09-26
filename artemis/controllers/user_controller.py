@@ -1,13 +1,6 @@
-import re
-
 from django.db import IntegrityError
 
 from artemis.models import User
-
-
-def is_valid_email(email):
-    email_regex = r'^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$'
-    return bool(re.match(email_regex, email))
 
 
 class UserController:
@@ -15,15 +8,7 @@ class UserController:
     def __init__(self):
         self._model = User
 
-    def create_user(self, email, password, first_name, last_name, middle_name, second_last_name):
-
-        required_fields = [email, password, first_name, last_name]
-        if not all(required_fields):
-            return None, 'Required data is missing'
-
-        if not is_valid_email(email):
-            return None, 'Email format is not valid'
-
+    def create_user(self, email, password, first_name, last_name, middle_name=None, second_last_name=None):
         try:
             user = self._model.objects.create(
                 email=email,
