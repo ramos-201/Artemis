@@ -1,13 +1,15 @@
 import re
 
 from django.contrib.auth import authenticate, login
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
 from artemis.controllers.user_controller import UserController
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def login_view(request):
     email = request.data.get('email')
     password = request.data.get('password')
@@ -25,6 +27,7 @@ def login_view(request):
 
 
 @api_view(['POST'])
+@permission_classes([AllowAny])
 def register_user_view(request):
     required_fields = ['email', 'password', 'first_name', 'last_name']
     missing_fields = [field for field in required_fields if field not in request.data]
