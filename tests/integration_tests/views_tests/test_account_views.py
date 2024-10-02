@@ -21,8 +21,13 @@ def test_login_successful(client_app, user_created):
         content_type='application/json'
     )
     assert response_client.status_code == 200
-    assert response_client.json().get('message') == 'Login successful'
     assert client_app.session['_auth_user_id'] == str(user_created.id)
+
+    response_data = response_client.json()
+    assert response_data['type'] == 'OK'
+    assert response_data['message'] == 'Login successful'
+    assert response_data['data'] == {'email': 'mail_example@example.com'}
+    assert response_data['err_info'] is None
 
 
 @mark.django_db
@@ -36,14 +41,27 @@ def test_login_failed(client_app):
         data=json.dumps(data_example_failed),
         content_type='application/json'
     )
-    assert response_client.status_code == 400
-    assert response_client.json().get('error') == 'Invalid credentials'
+    assert response_client.status_code == 200
+
+    response_data = response_client.json()
+    assert response_data['type'] == 'ERR'
+    assert response_data['message'] == 'Invalid credentials'
+    assert response_data['data'] is None
+    assert response_data['err_info'] == {
+        'type_err': 'InvalidCredentials',
+        'message_err': 'Check the data in the fields: (email, password)'
+    }
 
 
 def test_login_failed_with_empty_data(client_app):
     response_client = client_app.post(conn_url_login, {})
-    assert response_client.status_code == 400
-    assert response_client.json().get('error') == 'Required data is missing'
+    assert response_client.status_code == 200
+
+    response_data = response_client.json()
+    assert response_data['type'] == 'ERR'
+    assert response_data['message'] == 'Required data missing'
+    assert response_data['data'] is None
+    assert response_data['err_info'] == {'message_err': 'Required data: (email, password)', 'type_err': 'RequiredData'}
 
 
 conn_url_register = reverse('register')
